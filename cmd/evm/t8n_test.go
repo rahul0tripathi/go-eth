@@ -211,6 +211,14 @@ func TestT8n(t *testing.T) {
 			output: t8nOutput{result: true},
 			expOut: "exp_arrowglacier.json",
 		},
+		{ // Difficulty calculation on gray glacier
+			base: "./testdata/19",
+			input: t8nInput{
+				"alloc.json", "txs.json", "env.json", "GrayGlacier", "",
+			},
+			output: t8nOutput{result: true},
+			expOut: "exp_grayglacier.json",
+		},
 		{ // Sign unprotected (pre-EIP155) transaction
 			base: "./testdata/23",
 			input: t8nInput{
@@ -235,8 +243,15 @@ func TestT8n(t *testing.T) {
 			output:      t8nOutput{alloc: false, result: false},
 			expExitCode: 3,
 		},
+		{ // Test base fee calculation
+			base: "./testdata/25",
+			input: t8nInput{
+				"alloc.json", "txs.json", "env.json", "Merged", "",
+			},
+			output: t8nOutput{alloc: true, result: true},
+			expOut: "exp.json",
+		},
 	} {
-
 		args := []string{"t8n"}
 		args = append(args, tc.output.get()...)
 		args = append(args, tc.input.get(tc.base)...)
@@ -347,7 +362,6 @@ func TestT9n(t *testing.T) {
 			expExitCode: t8ntool.ErrorIO,
 		},
 	} {
-
 		args := []string{"t9n"}
 		args = append(args, tc.input.get(tc.base)...)
 
@@ -467,7 +481,6 @@ func TestB11r(t *testing.T) {
 			expOut: "exp.json",
 		},
 	} {
-
 		args := []string{"b11r"}
 		args = append(args, tc.input.get(tc.base)...)
 

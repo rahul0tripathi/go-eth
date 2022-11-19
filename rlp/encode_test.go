@@ -119,15 +119,15 @@ var encTests = []encTest{
 	{val: big.NewInt(0xFFFFFFFFFFFF), output: "86FFFFFFFFFFFF"},
 	{val: big.NewInt(0xFFFFFFFFFFFFFF), output: "87FFFFFFFFFFFFFF"},
 	{
-		val:    big.NewInt(0).SetBytes(unhex("102030405060708090A0B0C0D0E0F2")),
+		val:    new(big.Int).SetBytes(unhex("102030405060708090A0B0C0D0E0F2")),
 		output: "8F102030405060708090A0B0C0D0E0F2",
 	},
 	{
-		val:    big.NewInt(0).SetBytes(unhex("0100020003000400050006000700080009000A000B000C000D000E01")),
+		val:    new(big.Int).SetBytes(unhex("0100020003000400050006000700080009000A000B000C000D000E01")),
 		output: "9C0100020003000400050006000700080009000A000B000C000D000E01",
 	},
 	{
-		val:    big.NewInt(0).SetBytes(unhex("010000000000000000000000000000000000000000000000000000000000000000")),
+		val:    new(big.Int).SetBytes(unhex("010000000000000000000000000000000000000000000000000000000000000000")),
 		output: "A1010000000000000000000000000000000000000000000000000000000000000000",
 	},
 	{
@@ -290,6 +290,10 @@ var encTests = []encTest{
 	{val: &optionalBigIntField{A: 1}, output: "C101"},
 	{val: &optionalPtrField{A: 1}, output: "C101"},
 	{val: &optionalPtrFieldNil{A: 1}, output: "C101"},
+	{val: &multipleOptionalFields{A: nil, B: nil}, output: "C0"},
+	{val: &multipleOptionalFields{A: &[3]byte{1, 2, 3}, B: &[3]byte{1, 2, 3}}, output: "C88301020383010203"},
+	{val: &multipleOptionalFields{A: nil, B: &[3]byte{1, 2, 3}}, output: "C58083010203"}, // encodes without error but decode will fail
+	{val: &nonOptionalPtrField{A: 1}, output: "C20180"},                                  // encodes without error but decode will fail
 
 	// nil
 	{val: (*uint)(nil), output: "80"},

@@ -31,9 +31,9 @@ import (
 // API describes the set of methods offered over the RPC interface
 type API struct {
 	Namespace     string      // namespace under which the rpc methods of Service are exposed
-	Version       string      // api version for DApp's
+	Version       string      // deprecated - this field is no longer used, but retained for compatibility
 	Service       interface{} // receiver instance which holds the methods
-	Public        bool        // indication if the methods must be considered safe for public use
+	Public        bool        // deprecated - this field is no longer used, but retained for compatibility
 	Authenticated bool        // whether the api should only be available behind authentication.
 }
 
@@ -61,6 +61,7 @@ type jsonWriter interface {
 type BlockNumber int64
 
 const (
+	SafeBlockNumber      = BlockNumber(-4)
 	FinalizedBlockNumber = BlockNumber(-3)
 	PendingBlockNumber   = BlockNumber(-2)
 	LatestBlockNumber    = BlockNumber(-1)
@@ -68,7 +69,7 @@ const (
 )
 
 // UnmarshalJSON parses the given JSON fragment into a BlockNumber. It supports:
-// - "latest", "earliest" or "pending" as string arguments
+// - "safe", "finalized", "latest", "earliest" or "pending" as string arguments
 // - the block number
 // Returned errors:
 // - an invalid block number error when the given argument isn't a known strings
@@ -92,6 +93,9 @@ func (bn *BlockNumber) UnmarshalJSON(data []byte) error {
 	case "finalized":
 		*bn = FinalizedBlockNumber
 		return nil
+	case "safe":
+		*bn = SafeBlockNumber
+		return nil
 	}
 
 	blckNum, err := hexutil.DecodeUint64(input)
@@ -106,7 +110,7 @@ func (bn *BlockNumber) UnmarshalJSON(data []byte) error {
 }
 
 // MarshalText implements encoding.TextMarshaler. It marshals:
-// - "latest", "earliest" or "pending" as strings
+// - "safe", "finalized", "latest", "earliest" or "pending" as strings
 // - other numbers as hex
 func (bn BlockNumber) MarshalText() ([]byte, error) {
 	switch bn {
@@ -118,6 +122,8 @@ func (bn BlockNumber) MarshalText() ([]byte, error) {
 		return []byte("pending"), nil
 	case FinalizedBlockNumber:
 		return []byte("finalized"), nil
+	case SafeBlockNumber:
+		return []byte("safe"), nil
 	default:
 		return hexutil.Uint64(bn).MarshalText()
 	}
@@ -166,6 +172,10 @@ func (bnh *BlockNumberOrHash) UnmarshalJSON(data []byte) error {
 		return nil
 	case "finalized":
 		bn := FinalizedBlockNumber
+		bnh.BlockNumber = &bn
+		return nil
+	case "safe":
+		bn := SafeBlockNumber
 		bnh.BlockNumber = &bn
 		return nil
 	default:
